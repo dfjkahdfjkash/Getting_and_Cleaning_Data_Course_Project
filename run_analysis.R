@@ -1,6 +1,6 @@
 library(data.table)
 library(reshape2)
-# Downloading data set
+# Download data set
 fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 download.file(fileUrl, "./data/dataset.zip")
 unzip("./data/dataset.zip", exdir = "./data")
@@ -16,13 +16,13 @@ subject_test <- read.table("./data/UCI HAR Dataset/test/subject_test.txt")
 x_test <- read.table("./data/UCI HAR Dataset/test/X_test.txt")
 y_test <- read.table("./data/UCI HAR Dataset/test/y_test.txt")
 
-# Merging data into one data set
+# Merge data into one data set
 test <- cbind(subject_test, y_test, x_test)
 train <- cbind(subject_train, y_train, x_train)
 combined <- rbind(test, train)
 View(combined)
 
-# Extracting measurements on mean and standard deviation for each measurement
+# Extract measurements on mean and standard deviation for each measurement
 # Acturally, there exist a series of featuers called "meanFreq".
 # If these measurements are not required, just change the "mean" 
 # in next line to "mean\\b".
@@ -31,20 +31,22 @@ index_series <- c(1, 2, feature_index_series + 2)
 extracted <- combined[,index_series]
 View(extracted)
 
-# Renaming activities
+# Rename activities
 activity_series <- activity_labels[extracted[,2]]
 extracted[,2] <- activity_series 
 View(extracted)
 
-# Marking variables with descriptive names
+# Mark variables with descriptive names
 features_names <- as.character(features[feature_index_series])
 colnames(extracted) <- c("subject", "activity", features_names)
 View(extracted)
 
-# Creates a second, independent tidy data set with the average
+# Create a second, independent tidy data set with the average
 # of each variable for each activity and each subject
 melted <- melt(extracted, id.vars = c("subject", "activity"))
 tidy_data <- dcast(melted, subject+activity~variable, mean)
 View(tidy_data)
+
+# Write data set to file
 write.table(tidy_data, file = "./data/smart_tidy_data.txt", row.names = FALSE)
 View(read.table("./data/smart_tidy_data.txt"))
